@@ -4,9 +4,10 @@
 
 | 層 | 選択 | 理由 |
 | --- | --- | --- |
-| フロントエンド | Next.js (App Router) / TypeScript | 解説記事をSSGで静的生成でき、クイズ部分はクライアント動作にできる |
+| フロントエンド | Next.js (App Router) / TypeScript、静的出力（`output: 'export'`） | 解説記事をSSGで静的生成でき、クイズ部分はクライアント動作にできる。静的ファイルのみなのでホスティングを移しやすい |
 | スタイル | Tailwind CSS | |
-| 問題データ | 静的JSON + CDN配信 | 問題数が数千規模まではDB不要。低コスト・高速・運用が楽 |
+| 問題データ | 静的JSON + CDN配信 | 問題数が数千規模まではDB不要。低コスト・高速・運用が楽。配信用JSONはビルド時に原本から生成（`data-schema.md`） |
+| 誤答通報 | Googleフォームへの通常リンク | サーバーを持たずに通報を受け取れる。クリックするまで外部送信が発生しない |
 | 進捗保存 | IndexedDB（本体）+ localStorage（設定値） | アカウント不要で始められる |
 | ホスティング | Vercel（Hobby） | 個人開発で無料枠に収まる。CDNが標準。**投げ銭公開前に規約を再確認**（後述） |
 | 記事管理 | Markdownファイル | CMS不要。Gitで履歴管理できる |
@@ -25,8 +26,15 @@ Vercel の Hobby（無料）プランは非商用の個人利用に限られる�
 ドキュメントの版によって記載が食い違っているため、投げ銭リンクの公開前に再確認する。
 詳細と対応方針は `monetization.md` を参照。
 
-移行の可能性に備え、サーバー機能（API Routes、サーバーでの動的処理）への依存は最小限にし、
-静的出力中心の構成を保つこと。
+移行の可能性に備え、`output: 'export'` による静的出力とする。これにより次の機能は使わない。
+
+- Request に依存する Route Handlers、Server Actions、Proxy（旧ミドルウェア）
+- cookies の読み取り、next.config の rewrites / redirects / headers
+- `generateStaticParams()` のない動的ルート（解説記事ページは `generateStaticParams()` で全件生成する）
+- ISR、Draft Mode
+- `next/image` の既定ローダーによる画像最適化（MVPは写真を使わないので影響は小さい）
+
+詳細は `node_modules/next/dist/docs/01-app/02-guides/static-exports.md` の Unsupported Features。
 
 ## パフォーマンス
 
