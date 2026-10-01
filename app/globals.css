@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* 縦に十分な高さがあるときだけ出題画面を1画面に固定する。横向きや文字拡大時は通常のスクロールに任せる（WCAG 1.4.10） */
+@custom-variant tall (@media (min-height: 560px));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
