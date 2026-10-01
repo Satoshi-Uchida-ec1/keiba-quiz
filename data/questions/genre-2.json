@@ -1,0 +1,50 @@
+[
+  {
+    "id": "g2-0001",
+    "genre": 2,
+    "difficulty": "easy",
+    "question": "日本ダービー（東京優駿）が行われる距離は？",
+    "choices": ["芝1600m", "芝2000m", "芝2400m", "芝3000m"],
+    "answerIndex": 2,
+    "explanationShort": "東京競馬場の芝2400mで行われる、3歳馬の頂点を決めるレース。",
+    "explanationLong": "皐月賞・日本ダービー・菊花賞の3つをすべて勝った馬は「三冠馬」と呼ばれる。距離は皐月賞が芝2000m、菊花賞が芝3000mで、ダービーはその間にあたる。",
+    "tags": ["日本ダービー", "クラシック", "三冠"],
+    "source": "",
+    "reviewNote": "【AI下書き】ダービー・皐月賞・菊花賞の距離を一次情報で確認。",
+    "isTimeSensitive": false,
+    "updatedAt": "2026-09-23",
+    "status": "draft"
+  },
+  {
+    "id": "g2-0002",
+    "genre": 2,
+    "difficulty": "easy",
+    "question": "競馬で「良」「稍重」「重」「不良」の4段階で表すものは？",
+    "choices": ["天気", "馬場の状態", "馬の体調", "レースの格"],
+    "answerIndex": 1,
+    "explanationShort": "コースがどれだけ水分を含んでいるかを表す馬場状態。「良」が最も乾いていて、「不良」が最もぬかるんでいる。",
+    "explanationLong": "馬場状態は芝コースとダートコースで別々に発表される。ダートは適度に水を含むと砂が締まり、乾いているときより速いタイムが出やすい傾向がある。",
+    "tags": ["馬場", "用語"],
+    "source": "",
+    "reviewNote": "【AI下書き】4段階の名称と、ダートは水を含むとタイムが速くなりやすいという傾向の記述を確認。",
+    "isTimeSensitive": false,
+    "updatedAt": "2026-09-23",
+    "status": "draft"
+  },
+  {
+    "id": "g2-0003",
+    "genre": 2,
+    "difficulty": "normal",
+    "question": "JRA（中央競馬）の競馬場は全国に何か所ある？",
+    "choices": ["6か所", "8か所", "10か所", "12か所"],
+    "answerIndex": 2,
+    "explanationShort": "北は札幌から南は小倉まで、全国に10か所ある。",
+    "explanationLong": "札幌・函館・福島・新潟・東京・中山・中京・京都・阪神・小倉の10場。これとは別に、地方自治体などが主催する地方競馬の競馬場が各地にある。",
+    "tags": ["競馬場"],
+    "source": "",
+    "reviewNote": "【AI下書き】10場の数と名称を確認。変わる可能性が低い事実として isTimeSensitive を false にしたが、時事扱いにするかも判断する。",
+    "isTimeSensitive": false,
+    "updatedAt": "2026-09-23",
+    "status": "draft"
+  }
+]

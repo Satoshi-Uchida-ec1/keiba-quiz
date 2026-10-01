@@ -17,6 +17,9 @@
 /.next/
 /out/
 
+# generated from data/questions by scripts/build-questions.ts
+/public/questions/
+
 # production
 /build
 

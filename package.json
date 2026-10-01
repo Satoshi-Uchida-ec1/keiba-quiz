@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "questions": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/build-questions.ts",
+    "predev": "npm run questions -- --include-drafts",
     "dev": "next dev",
+    "prebuild": "npm run questions",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",

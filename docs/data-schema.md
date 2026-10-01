@@ -11,10 +11,16 @@ MVPでは静的JSONとして配信する。1ファイルにまとめず、ジャ
 | 種類 | 置き場所 | 内容 |
 | --- | --- | --- |
 | 原本 | `data/questions/*.json` | 下表の全フィールド。人間が編集する |
-| 配信用 | ビルド時に生成（`public/` 配下など） | `status: published` の問題のみ。`source`・`status` を除いた公開フィールドのみ |
+| 配信用 | `public/questions/genre-<1〜7>.json`（ビルド時に生成、Git管理外） | `status: published` の問題のみ。`source`・`status`・`reviewNote` を除いた公開フィールドのみ |
 
-配信用JSONはビルド時にスクリプトで生成し、原本を直接クライアントに読ませない。
-生成時に必須項目・選択肢が4つ・`answerIndex` の範囲・ID重複をバリデーションする。
+配信用JSONは `scripts/build-questions.ts`（`npm run questions`、dev / build の前に自動実行）で生成し、
+原本を直接クライアントに読ませない。生成時に `lib/quiz/validate.ts` で次を検証し、1件でもエラーがあれば止まる。
+
+- 必須項目の型と値（ID形式とジャンルの一致、enum、実在する日付）
+- 問題文が60字以内、選択肢が空でない4つで重複なし、`answerIndex` が0〜3
+- 時事問題に `asOf` がある
+- `source` が空なら review / published にできない。`reviewNote` が残っていたら published にできない
+- 全ファイルを通してIDが重複しない
 
 原本には非公開の `source` が入るため、GitHubリポジトリは Private で運用する。
 
@@ -29,7 +35,8 @@ MVPでは静的JSONとして配信する。1ファイルにまとめず、ジャ
 | explanationShort | string | ● | 要点1〜2文。回答直後に常時表示 |
 | explanationLong | string | | 詳細解説。折りたたみで展開 |
 | tags | string[] | | 絞り込み・記事紐付け用 |
-| source | string | ● | 事実確認に使った一次情報のメモ（内部管理用、非公開） |
+| source | string | ● | 事実確認に使った一次情報のメモ（内部管理用、非公開）。人間のみが書く。未確認の間は空文字 |
+| reviewNote | string | | 確認が必要な箇所のメモ（内部管理用、非公開）。published にする前に項目ごと消す |
 | isTimeSensitive | boolean | ● | 時事問題フラグ |
 | asOf | date | | 「〇年時点」の基準日 |
 | updatedAt | date | ● | 最終更新日 |
