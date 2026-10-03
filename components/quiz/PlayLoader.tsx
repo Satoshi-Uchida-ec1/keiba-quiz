@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { DeliveredQuestion, ProgressStore, SetRequest } from "@/lib/types";
 import { loadQuestions } from "@/lib/quiz/load";
@@ -12,6 +13,7 @@ type State =
   | { status: "loading" }
   | { status: "error" }
   | { status: "empty" }
+  | { status: "notice"; questions: PreparedQuestion[]; round: number }
   | { status: "playing"; questions: PreparedQuestion[]; round: number }
   | { status: "finished"; total: number; round: number };
 
@@ -21,10 +23,31 @@ interface Session {
   request: SetRequest;
 }
 
-async function nextSet({ pool, store, request }: Session): Promise<PreparedQuestion[]> {
-  const progress = await store.load();
-  return buildSet(pool, request, progress).questions.map((question) => prepareQuestion(question));
+interface PreparedSet {
+  questions: PreparedQuestion[];
+  usedOtherGenres: boolean;
 }
+
+async function nextSet({ pool, store, request }: Session): Promise<PreparedSet> {
+  const progress = await store.load();
+  const set = buildSet(pool, request, progress);
+  return {
+    questions: set.questions.map((question) => prepareQuestion(question)),
+    usedOtherGenres: set.usedOtherGenres,
+  };
+}
+
+// 別ジャンルから補充したときは、出題画面に何も足さず、出題の前に知らせる（spec §4）
+function stateFor(set: PreparedSet, round: number): State {
+  if (set.questions.length === 0) return { status: "empty" };
+  if (set.usedOtherGenres) return { status: "notice", questions: set.questions, round };
+  return { status: "playing", questions: set.questions, round };
+}
+
+const PRIMARY_BUTTON =
+  "flex min-h-12 w-full items-center justify-center rounded-xl bg-zinc-900 px-4 py-3 font-bold text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900";
+const SECONDARY_LINK =
+  "flex min-h-12 w-full items-center justify-center rounded-xl border-2 border-zinc-500 px-4 py-3 font-bold hover:bg-zinc-100 dark:border-zinc-400 dark:hover:bg-zinc-800";
 
 interface PlayLoaderProps {
   request: SetRequest;
@@ -40,9 +63,9 @@ export function PlayLoader({ request }: PlayLoaderProps) {
       .then(async ([pool, store]) => {
         const session = { pool, store, request };
         sessionRef.current = session;
-        const questions = await nextSet(session);
+        const set = await nextSet(session);
         if (cancelled) return;
-        setState(questions.length === 0 ? { status: "empty" } : { status: "playing", questions, round: 0 });
+        setState(stateFor(set, 0));
       })
       .catch(() => {
         if (!cancelled) setState({ status: "error" });
@@ -65,7 +88,7 @@ export function PlayLoader({ request }: PlayLoaderProps) {
   async function restart(round: number) {
     const session = sessionRef.current;
     if (!session) return;
-    setState({ status: "playing", questions: await nextSet(session), round: round + 1 });
+    setState(stateFor(await nextSet(session), round + 1));
   }
 
   if (state.status === "playing") {
@@ -84,16 +107,27 @@ export function PlayLoader({ request }: PlayLoaderProps) {
       {state.status === "loading" && <p role="status">問題を読み込んでいます…</p>}
       {state.status === "error" && <p role="alert">問題を読み込めませんでした。通信状況を確認して、ページを再読み込みしてください。</p>}
       {state.status === "empty" && <p>公開中の問題はまだありません。</p>}
+      {state.status === "notice" && (
+        <>
+          <p className="text-lg font-bold">このジャンルの問題が足りないため、他のジャンルからも出題します</p>
+          <button
+            type="button"
+            onClick={() => setState({ status: "playing", questions: state.questions, round: state.round })}
+            className={PRIMARY_BUTTON}
+          >
+            始める
+          </button>
+        </>
+      )}
       {state.status === "finished" && (
         <>
           <p className="text-xl font-bold">全{state.total}問おわりました</p>
-          <button
-            type="button"
-            onClick={() => void restart(state.round)}
-            className="min-h-12 w-full rounded-xl bg-zinc-900 px-4 py-3 font-bold text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900"
-          >
+          <button type="button" onClick={() => void restart(state.round)} className={PRIMARY_BUTTON}>
             もう一度
           </button>
+          <Link href="/play" className={SECONDARY_LINK}>
+            条件を変える
+          </Link>
         </>
       )}
     </main>
