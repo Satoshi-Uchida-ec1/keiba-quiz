@@ -18,17 +18,19 @@ type State =
 interface Session {
   pool: DeliveredQuestion[];
   store: ProgressStore;
+  request: SetRequest;
 }
 
-// ジャンル・難易度選択（P-03）ができるまでは全ジャンル×おまかせで出題する
-const REQUEST: SetRequest = { genre: "all", difficulty: "auto" };
-
-async function nextSet({ pool, store }: Session): Promise<PreparedQuestion[]> {
+async function nextSet({ pool, store, request }: Session): Promise<PreparedQuestion[]> {
   const progress = await store.load();
-  return buildSet(pool, REQUEST, progress).questions.map((question) => prepareQuestion(question));
+  return buildSet(pool, request, progress).questions.map((question) => prepareQuestion(question));
 }
 
-export function PlayLoader() {
+interface PlayLoaderProps {
+  request: SetRequest;
+}
+
+export function PlayLoader({ request }: PlayLoaderProps) {
   const [state, setState] = useState<State>({ status: "loading" });
   const sessionRef = useRef<Session | null>(null);
 
@@ -36,7 +38,7 @@ export function PlayLoader() {
     let cancelled = false;
     Promise.all([loadQuestions(), openProgressStore()])
       .then(async ([pool, store]) => {
-        const session = { pool, store };
+        const session = { pool, store, request };
         sessionRef.current = session;
         const questions = await nextSet(session);
         if (cancelled) return;
@@ -48,7 +50,7 @@ export function PlayLoader() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [request]);
 
   // 書き込みの完了を待たずに次へ進める。同じ DB の後続の読み込みは先の書き込みの完了後に実行されるので、「もう一度」で読み直す進捗に反映される
   function handleAnswer(questionId: string, correct: boolean, durationMs: number) {

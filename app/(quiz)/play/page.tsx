@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { PlayLoader } from "@/components/quiz/PlayLoader";
+import { SelectScreen } from "@/components/quiz/SelectScreen";
 
 export const metadata: Metadata = {
-  title: "クイズ",
+  title: "ジャンル・難易度を選ぶ",
 };
 
-export default function PlayPage() {
-  return <PlayLoader />;
+export default function SelectPage() {
+  return <SelectScreen />;
 }
