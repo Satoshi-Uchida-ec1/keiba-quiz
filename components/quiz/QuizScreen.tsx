@@ -7,15 +7,17 @@ import { QuestionArea } from "./QuestionArea";
 
 interface QuizScreenProps {
   questions: PreparedQuestion[];
+  onAnswer: (questionId: string, correct: boolean, durationMs: number) => void;
   onFinish: () => void;
 }
 
-export function QuizScreen({ questions, onFinish }: QuizScreenProps) {
+export function QuizScreen({ questions, onAnswer, onFinish }: QuizScreenProps) {
   const [index, setIndex] = useState(0);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const headingRef = useRef<HTMLHeadingElement>(null);
   const nextRef = useRef<HTMLButtonElement>(null);
   const isFirstRender = useRef(true);
+  const shownAtRef = useRef(0);
 
   const prepared = questions[index];
   const isLast = index === questions.length - 1;
@@ -32,6 +34,17 @@ export function QuizScreen({ questions, onFinish }: QuizScreenProps) {
     }
     headingRef.current?.focus();
   }, [index]);
+
+  // 描画中に Date.now() を呼ばないため、表示時刻は effect で記録する
+  useEffect(() => {
+    shownAtRef.current = Date.now();
+  }, [index]);
+
+  function handleSelect(choiceIndex: number) {
+    if (selectedIndex !== null) return;
+    setSelectedIndex(choiceIndex);
+    onAnswer(prepared.question.id, choiceIndex === prepared.answerIndex, Date.now() - shownAtRef.current);
+  }
 
   function handleNext() {
     if (isLast) {
@@ -57,7 +70,7 @@ export function QuizScreen({ questions, onFinish }: QuizScreenProps) {
         choices={prepared.choices}
         answerIndex={prepared.answerIndex}
         selectedIndex={selectedIndex}
-        onSelect={setSelectedIndex}
+        onSelect={handleSelect}
         onNext={handleNext}
         nextLabel={isLast ? "おわる" : "次の問題へ"}
         nextRef={nextRef}
