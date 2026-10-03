@@ -38,3 +38,40 @@ export type PublicQuestion = Omit<SourceQuestion, "source" | "status" | "reviewN
 
 /** 実際にブラウザが受け取る問題。unverified は開発サーバーでだけ付く */
 export type DeliveredQuestion = PublicQuestion & { unverified?: true };
+
+export type GenreChoice = GenreId | "all";
+export type DifficultyChoice = Difficulty | "auto";
+
+/** 1セットの出題条件。auto は「おまかせ」 */
+export interface SetRequest {
+  genre: GenreChoice;
+  difficulty: DifficultyChoice;
+}
+
+export interface QuestionSet {
+  questions: DeliveredQuestion[];
+  /** 選んだジャンル以外から補充したか。genre が "all" のときは常に false */
+  usedOtherGenres: boolean;
+}
+
+/** 1問ぶんの回答。IndexedDB の answers ストアに入る */
+export interface AnswerRecord {
+  questionId: string;
+  correct: boolean;
+  /** ISO 8601 */
+  answeredAt: string;
+  /** 問題を表示してから回答するまで */
+  durationMs: number;
+}
+
+export interface Progress {
+  /** 一度でも回答した問題 */
+  answeredIds: ReadonlySet<string>;
+  /** 直近に回答した重複しない問題ID。古い順 */
+  recentIds: readonly string[];
+}
+
+export interface ProgressStore {
+  load(): Promise<Progress>;
+  recordAnswer(record: AnswerRecord): Promise<void>;
+}
