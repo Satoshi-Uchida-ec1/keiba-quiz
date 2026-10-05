@@ -1,13 +1,14 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import type { DeliveredQuestion, ProgressStore, SetRequest } from "@/lib/types";
+import type { DeliveredQuestion, ProgressStore, SessionResult, SetRequest } from "@/lib/types";
 import { loadQuestions } from "@/lib/quiz/load";
+import { summarizeSession } from "@/lib/quiz/result";
 import { buildSet } from "@/lib/quiz/session";
 import { prepareQuestion, type PreparedQuestion } from "@/lib/quiz/shuffle";
 import { openProgressStore } from "@/lib/progress/store";
 import { QuizScreen } from "./QuizScreen";
+import { ResultScreen } from "./ResultScreen";
 
 type State =
   | { status: "loading" }
@@ -15,7 +16,7 @@ type State =
   | { status: "empty" }
   | { status: "notice"; questions: PreparedQuestion[]; round: number }
   | { status: "playing"; questions: PreparedQuestion[]; round: number }
-  | { status: "finished"; total: number; round: number };
+  | { status: "finished"; result: SessionResult; round: number };
 
 interface Session {
   pool: DeliveredQuestion[];
@@ -46,8 +47,6 @@ function stateFor(set: PreparedSet, round: number): State {
 
 const PRIMARY_BUTTON =
   "flex min-h-12 w-full items-center justify-center rounded-xl bg-zinc-900 px-4 py-3 font-bold text-white hover:bg-zinc-700 dark:bg-zinc-100 dark:text-zinc-900";
-const SECONDARY_LINK =
-  "flex min-h-12 w-full items-center justify-center rounded-xl border-2 border-zinc-500 px-4 py-3 font-bold hover:bg-zinc-100 dark:border-zinc-400 dark:hover:bg-zinc-800";
 
 interface PlayLoaderProps {
   request: SetRequest;
@@ -97,9 +96,15 @@ export function PlayLoader({ request }: PlayLoaderProps) {
         key={state.round}
         questions={state.questions}
         onAnswer={handleAnswer}
-        onFinish={() => setState({ status: "finished", total: state.questions.length, round: state.round })}
+        onFinish={(answers) =>
+          setState({ status: "finished", result: summarizeSession(state.questions, answers), round: state.round })
+        }
       />
     );
+  }
+
+  if (state.status === "finished") {
+    return <ResultScreen result={state.result} onRestart={() => void restart(state.round)} />;
   }
 
   return (
@@ -117,17 +122,6 @@ export function PlayLoader({ request }: PlayLoaderProps) {
           >
             始める
           </button>
-        </>
-      )}
-      {state.status === "finished" && (
-        <>
-          <p className="text-xl font-bold">全{state.total}問おわりました</p>
-          <button type="button" onClick={() => void restart(state.round)} className={PRIMARY_BUTTON}>
-            もう一度
-          </button>
-          <Link href="/play" className={SECONDARY_LINK}>
-            条件を変える
-          </Link>
         </>
       )}
     </main>
