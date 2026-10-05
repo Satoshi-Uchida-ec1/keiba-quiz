@@ -75,3 +75,25 @@ export interface ProgressStore {
   load(): Promise<Progress>;
   recordAnswer(record: AnswerRecord): Promise<void>;
 }
+
+/** 1問ぶんの結果。セット内でだけ使い、保存しない */
+export interface SessionAnswer {
+  questionId: string;
+  correct: boolean;
+  durationMs: number;
+}
+
+export interface MissedQuestion {
+  question: DeliveredQuestion;
+  /** シャッフル後の選択肢から取った、正解の文字 */
+  correctChoice: string;
+}
+
+export interface SessionResult {
+  total: number;
+  correctCount: number;
+  /** 各問の回答時間の合計。解説を読む時間は含まない */
+  totalDurationMs: number;
+  /** 出題順 */
+  missed: MissedQuestion[];
+}
