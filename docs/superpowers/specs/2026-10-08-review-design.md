@@ -20,7 +20,7 @@
 | 含める | 含めない（理由） |
 | --- | --- |
 | `lib/progress/review.ts`（箱の計算）と単体テスト | 結果画面の「間違えた問題を復習」導線（spec の機能一覧にない。`[要確認]`） |
-| `Progress` に `reviewIds` を足し、`summarizeAnswers` が計算する | 復習専用セット・画面 P-07（同上） |
+| `Progress` に `review`（`ReviewCandidates`。計画の段階で `reviewIds` から変えた。§3）を足し、`summarizeAnswers` が計算する | 復習専用セット・画面 P-07（同上） |
 | `buildSet` に復習問題を混ぜる段を足す（spec §4 手順3） | 復習問題であることの表示（spec §3「回答の妨げになるものを置かない」） |
 | spec・data-schema の更新 | IndexedDB の変更、DB バージョンの変更（保存を増やさない） |
 | | 成績の可視化（M-09）、設定画面のリセット（P-11） |
