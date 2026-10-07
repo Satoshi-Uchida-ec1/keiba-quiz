@@ -64,11 +64,19 @@ export interface AnswerRecord {
   durationMs: number;
 }
 
+/** 復習の候補。箱の中の順は決めない */
+export interface ReviewCandidates {
+  box1: readonly string[];
+  box2: readonly string[];
+}
+
 export interface Progress {
   /** 一度でも回答した問題 */
   answeredIds: ReadonlySet<string>;
   /** 直近に回答した重複しない問題ID。古い順 */
   recentIds: readonly string[];
+  /** 間違えた問題の復習の候補。回答履歴から計算し、保存しない */
+  review: ReviewCandidates;
 }
 
 export interface ProgressStore {
