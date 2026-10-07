@@ -77,7 +77,7 @@ MVPはアカウントを作らず IndexedDB に保存する。localStorage は�
 | キー | 内容 |
 | --- | --- |
 | answers | 問題IDごとの解答履歴（正誤、日時、所要時間） |
-| reviewQueue | 復習キュー。問題IDとLeitnerのボックス番号 |
+| reviewQueue | 保存しない。`answers` から毎回計算する（箱1・箱2。ルールは `spec.md` §4「復習」）。保存場所を1か所にして食い違いを防ぐ |
 | stats | ジャンル別・難易度別の集計値（履歴から再計算可能なキャッシュ） |
 | profile | 初期難易度設定、オンボーディング完了フラグ |
 | settings | 音のON/OFF、タイマーのON/OFF |
