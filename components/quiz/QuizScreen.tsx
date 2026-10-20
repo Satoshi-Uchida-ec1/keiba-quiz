@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { SessionAnswer } from "@/lib/types";
 import type { PreparedQuestion } from "@/lib/quiz/shuffle";
 import { ChoiceList } from "./ChoiceList";
 import { QuestionArea } from "./QuestionArea";
@@ -8,7 +9,7 @@ import { QuestionArea } from "./QuestionArea";
 interface QuizScreenProps {
   questions: PreparedQuestion[];
   onAnswer: (questionId: string, correct: boolean, durationMs: number) => void;
-  onFinish: () => void;
+  onFinish: (answers: SessionAnswer[]) => void;
 }
 
 export function QuizScreen({ questions, onAnswer, onFinish }: QuizScreenProps) {
@@ -18,6 +19,8 @@ export function QuizScreen({ questions, onAnswer, onFinish }: QuizScreenProps) {
   const nextRef = useRef<HTMLButtonElement>(null);
   const isFirstRender = useRef(true);
   const shownAtRef = useRef(0);
+  // 結果画面のために、このセットの回答を貯める。保存（onAnswer）とは別で、リロードで消えてよい
+  const answersRef = useRef<SessionAnswer[]>([]);
 
   const prepared = questions[index];
   const isLast = index === questions.length - 1;
@@ -43,12 +46,15 @@ export function QuizScreen({ questions, onAnswer, onFinish }: QuizScreenProps) {
   function handleSelect(choiceIndex: number) {
     if (selectedIndex !== null) return;
     setSelectedIndex(choiceIndex);
-    onAnswer(prepared.question.id, choiceIndex === prepared.answerIndex, Date.now() - shownAtRef.current);
+    const correct = choiceIndex === prepared.answerIndex;
+    const durationMs = Date.now() - shownAtRef.current;
+    answersRef.current.push({ questionId: prepared.question.id, correct, durationMs });
+    onAnswer(prepared.question.id, correct, durationMs);
   }
 
   function handleNext() {
     if (isLast) {
-      onFinish();
+      onFinish(answersRef.current);
       return;
     }
     setIndex(index + 1);
