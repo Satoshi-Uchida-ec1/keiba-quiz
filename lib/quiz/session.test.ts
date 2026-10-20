@@ -26,7 +26,7 @@ function questions(prefix: string, genre: GenreId, difficulty: Difficulty, count
 }
 
 function progress(answered: readonly string[] = [], recent: readonly string[] = []): Progress {
-  return { answeredIds: new Set([...answered, ...recent]), recentIds: recent };
+  return { answeredIds: new Set([...answered, ...recent]), recentIds: recent, review: { box1: [], box2: [] } };
 }
 
 const idsOf = (list: readonly DeliveredQuestion[]) => list.map((q) => q.id);

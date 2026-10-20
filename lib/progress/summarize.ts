@@ -1,4 +1,5 @@
 import type { AnswerRecord, Progress } from "../types.ts";
+import { computeReviewCandidates } from "./review.ts";
 
 export const RECENT_LIMIT = 30;
 
@@ -15,5 +16,6 @@ export function summarizeAnswers(records: readonly AnswerRecord[]): Progress {
   return {
     answeredIds: new Set(records.map((record) => record.questionId)),
     recentIds: recent.reverse(),
+    review: computeReviewCandidates(records),
   };
 }
